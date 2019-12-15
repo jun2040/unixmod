@@ -1,32 +1,33 @@
 package com.jun2040.unixmod;
 
-import com.google.common.collect.ImmutableMap;
-import com.jun2040.unixmod.blocks.Fabricator;
-import com.jun2040.unixmod.blocks.ModBlocks;
-import com.jun2040.unixmod.setup.ClientProxy;
-import com.jun2040.unixmod.setup.IProxy;
-import com.jun2040.unixmod.setup.ModSetup;
-import com.jun2040.unixmod.setup.ServerProxy;
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraftforge.client.model.*;
-import net.minecraftforge.client.model.obj.OBJLoader;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.model.TRSRTransformation;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+        import com.jun2040.unixmod.blocks.*;
+        import com.jun2040.unixmod.items.AlienFeces;
+        import com.jun2040.unixmod.items.ModItems;
+        import com.jun2040.unixmod.setup.ClientProxy;
+        import com.jun2040.unixmod.setup.IProxy;
+        import com.jun2040.unixmod.setup.ModSetup;
+        import com.jun2040.unixmod.setup.ServerProxy;
+        import net.minecraft.block.Block;
+
+        import net.minecraft.inventory.container.ContainerType;
+        import net.minecraft.item.BlockItem;
+        import net.minecraft.item.Item;
+        import net.minecraft.tileentity.TileEntityType;
+        import net.minecraft.util.math.BlockPos;
+        import net.minecraftforge.common.MinecraftForge;
+        import net.minecraftforge.common.extensions.IForgeContainerType;
+        import net.minecraftforge.event.RegistryEvent;
+        import net.minecraftforge.eventbus.api.SubscribeEvent;
+        import net.minecraftforge.fml.DistExecutor;
+        import net.minecraftforge.fml.common.Mod;
+        import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+        import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+        import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
+        import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
+        import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+        import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+        import org.apache.logging.log4j.LogManager;
+        import org.apache.logging.log4j.Logger;
 
 @Mod("unixmod")
 public class UnixMod {
@@ -76,11 +77,28 @@ public class UnixMod {
         @SubscribeEvent
         public static void onBlocksRegistry(final RegistryEvent.Register<Block> event) {
             event.getRegistry().register(new Fabricator());
+            event.getRegistry().register(new Bioreactor());
         }
 
         @SubscribeEvent
         public static void onItemsRegistry(final RegistryEvent.Register<Item> event) {
-            event.getRegistry().register(new BlockItem(ModBlocks.FABRICATOR, new Item.Properties().group(setup.itemGroup)).setRegistryName("fabricator"));
+            event.getRegistry().register(new BlockItem(ModBlocks.FABRICATOR, new Item.Properties().group(setup.subnautica)).setRegistryName("fabricator"));
+            event.getRegistry().register(new BlockItem(ModBlocks.BIOREACTOR, new Item.Properties().group(setup.subnautica)).setRegistryName("bioreactor"));
+            event.getRegistry().register(new AlienFeces());
+        }
+
+        @SubscribeEvent
+        public static void onTileEntityRegistry(final RegistryEvent.Register<TileEntityType<?>> event) {
+            event.getRegistry().register(TileEntityType.Builder.create(FabricatorTile::new, ModBlocks.FABRICATOR).build(null).setRegistryName("fabricator"));
+            event.getRegistry().register(TileEntityType.Builder.create(FabricatorTile::new, ModBlocks.BIOREACTOR).build(null).setRegistryName("bioreactor"));
+        }
+
+        @SubscribeEvent
+        public static void onContainerRegistry(final RegistryEvent.Register<ContainerType<?>> event) {
+            event.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> {
+                BlockPos pos = data.readBlockPos();
+                return new BioreactorContainer(windowId, UnixMod.proxy.getClientWorld(), pos, inv, UnixMod.proxy.getClientPlayer());
+            }).setRegistryName("bioreactor"));
         }
 
     }

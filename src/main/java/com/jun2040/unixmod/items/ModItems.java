@@ -4,4 +4,7 @@ import net.minecraftforge.registries.ObjectHolder;
 
 public class ModItems {
 
+    @ObjectHolder("unixmod:alien_feces")
+    public static AlienFeces ALIEN_FECES;
+
 }

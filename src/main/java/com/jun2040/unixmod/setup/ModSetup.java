@@ -5,7 +5,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
 public class ModSetup {
-    public ItemGroup itemGroup = new ItemGroup("subnautica") {
+    public ItemGroup subnautica = new ItemGroup("subnautica") {
         @Override
         public ItemStack createIcon() {
             return new ItemStack(ModBlocks.FABRICATOR);
